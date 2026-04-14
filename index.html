@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Password Generator & Encryption</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin:0;
+  font-family:system-ui, sans-serif;
+  background:#f4f6fb;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.card {
+  width:100%;
+  max-width:420px;
+  background:#ffffff;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+h1 {
+  text-align:center;
+}
+
+label {
+  font-size:0.9rem;
+  margin-top:10px;
+  display:block;
+}
+
+input, textarea, button {
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:0.95rem;
+}
+
+textarea {
+  resize:none;
+}
+
+button {
+  background:#5a67d8;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+small {
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>🔐 Password Encryptor</h1>
+
+  <label>Password Length</label>
+  <input type="range" id="length" min="8" max="64" value="16">
+
+  <label>Generated Password</label>
+  <textarea id="password" rows="2" readonly></textarea>
+
+  <label>Encryption Key (Master Password)</label>
+  <input id="key" placeholder="Enter encryption key">
+
+  <button onclick="encryptPassword()">Encrypt Password</button>
+
+  <label>Encrypted Output</label>
+  <textarea id="encrypted" rows="3" readonly></textarea>
+
+  <small>
+    Uses AES‑256‑GCM encryption (client‑side).  
+    Password is generated ONLY based on length.
+  </small>
+</div>
+
+<script>
+// Secure character set (fixed)
+const CHARSET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+  "abcdefghijklmnopqrstuvwxyz" +
+  "0123456789" +
+  "@#$%&*!?";
+
+const lengthEl = document.getElementById("length");
+const passwordEl = document.getElementById("password");
+const encryptedEl = document.getElementById("encrypted");
+const keyEl = document.getElementById("key");
+
+// Secure random number
+function rand(max) {
+  return crypto.getRandomValues(new Uint32Array(1))[0] % max;
+}
+
+// Generate password ONLY based on length
+function generatePassword() {
+  let pwd = "";
+  for (let i = 0; i < lengthEl.value; i++) {
+    pwd += CHARSET[rand(CHARSET.length)];
+  }
+  passwordEl.value = pwd;
+}
+
+// Auto-generate
+lengthEl.addEventListener("input", generatePassword);
+generatePassword();
+
+// Encrypt generated password
+async function encryptPassword() {
+  if (!keyEl.value) {
+    alert("Enter encryption key");
+    return;
+  }
+
+  const pw = passwordEl.value;
+  const keyMaterial = new TextEncoder().encode(keyEl.value);
+
+  // Derive AES key using PBKDF2
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    keyMaterial,
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  const aesKey = await crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: keyMaterial,
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt"]
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    aesKey,
+    new TextEncoder().encode(pw)
+  );
+
+  // Encode output
+  const ivBase64 = btoa(String.fromCharCode(...iv));
+  const dataBase64 = btoa(
+    String.fromCharCode(...new Uint8Array(encrypted))
+  );
+
+  encryptedEl.value = ivBase64 + ":" + dataBase64;
+}
+</script>
+
+</body>
+</html>
