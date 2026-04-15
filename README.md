@@ -37,4 +37,4 @@ CSS3 for styling and alignment
 JavaScript for encryption/decryption logic
 
 Author
-Created by Narsing-s
+Created by [Narsing-s](https://github.com/Narsing-s)
