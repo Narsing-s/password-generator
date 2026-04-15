@@ -2,169 +2,229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Password Generator & Encryption</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Property Generator</title>
 
 <style>
 body {
-  margin:0;
-  font-family:system-ui, sans-serif;
-  background:#f4f6fb;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f6f8;
+  margin: 0;
+  padding: 20px;
 }
 
-.card {
-  width:100%;
-  max-width:420px;
-  background:#ffffff;
-  border-radius:14px;
-  padding:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+/* HEADER TITLE */
+.header {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1976d2;
 }
 
-h1 {
-  text-align:center;
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  background: #f9f9f9;
+}
+
+.tab.active {
+  background: #fff;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 label {
-  font-size:0.9rem;
-  margin-top:10px;
-  display:block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #444;
 }
 
-input, textarea, button {
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:0.95rem;
+input, select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-textarea {
-  resize:none;
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 25px;
 }
 
 button {
-  background:#5a67d8;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-  font-weight:bold;
+  width: 100%;
+  padding: 12px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-small {
-  color:#666;
+button:hover {
+  background: #125aa0;
+}
+
+.result {
+  margin-top: 20px;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.footer a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>🔐 Password Encryptor</h1>
+<div class="header">Secure Properties Generator</div>
 
-  <label>Password Length</label>
-  <input type="range" id="length" min="8" max="64" value="16">
+<div class="container">
 
-  <label>Generated Password</label>
-  <textarea id="password" rows="2" readonly></textarea>
+  <div class="tabs">
+    <div class="tab active">String</div>
+  </div>
 
-  <label>Encryption Key (Master Password)</label>
-  <input id="key" placeholder="Enter encryption key">
+  <div class="row">
+    <div class="field">
+      <label>Operation</label>
+      <select id="operation">
+        <option>Encrypt</option>
+        <option>Decrypt</option>
+      </select>
+    </div>
 
-  <button onclick="encryptPassword()">Encrypt Password</button>
+    <div class="field">
+      <label>Algorithm</label>
+      <select>
+        <option>AES (default)</option>
+        <option>Blowfish</option>
+        <option>DES</option>
+        <option>DESede</option>
+        <option>RC2</option>
+        <option>RCA</option>
+      </select>
+    </div>
 
-  <label>Encrypted Output</label>
-  <textarea id="encrypted" rows="3" readonly></textarea>
+    <div class="field">
+      <label>State</label>
+      <select>
+        <option>CBC (default)</option>
+        <option>CFB</option>
+        <option>ECB</option>
+        <option>OFB</option>
+      </select>
+    </div>
 
-  <small>
-    Uses AES‑256‑GCM encryption (client‑side).  
-    Password is generated ONLY based on length.
-  </small>
+    <div class="checkbox">
+      <input type="checkbox" id="iv" />
+      <label for="iv">Use random IVs</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label>Key</label>
+      <input type="text" id="key" placeholder="Enter key">
+    </div>
+
+    <div class="field">
+      <label>Value</label>
+      <input type="text" id="value" placeholder="Enter value">
+    </div>
+  </div>
+
+  <button onclick="generate()">Generate</button>
+
+  <div class="result">
+    <label>Result</label>
+    <textarea id="result"></textarea>
+  </div>
+
+</div>
+
+<!-- FOOTER ADDED -->
+<div class="footer">
+  Created by <a href="https://github.com/Narsing-s" target="_blank">Narsing-s</a> GitHub
 </div>
 
 <script>
-// Secure character set (fixed)
-const CHARSET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-  "abcdefghijklmnopqrstuvwxyz" +
-  "0123456789" +
-  "@#$%&*!?";
+function generate() {
+  const operation = document.getElementById('operation').value;
+  const key = document.getElementById('key').value;
+  const value = document.getElementById('value').value;
 
-const lengthEl = document.getElementById("length");
-const passwordEl = document.getElementById("password");
-const encryptedEl = document.getElementById("encrypted");
-const keyEl = document.getElementById("key");
-
-// Secure random number
-function rand(max) {
-  return crypto.getRandomValues(new Uint32Array(1))[0] % max;
-}
-
-// Generate password ONLY based on length
-function generatePassword() {
-  let pwd = "";
-  for (let i = 0; i < lengthEl.value; i++) {
-    pwd += CHARSET[rand(CHARSET.length)];
-  }
-  passwordEl.value = pwd;
-}
-
-// Auto-generate
-lengthEl.addEventListener("input", generatePassword);
-generatePassword();
-
-// Encrypt generated password
-async function encryptPassword() {
-  if (!keyEl.value) {
-    alert("Enter encryption key");
+  if (!key || !value) {
+    alert('Please enter key and value');
     return;
   }
 
-  const pw = passwordEl.value;
-  const keyMaterial = new TextEncoder().encode(keyEl.value);
+  let output = '';
 
-  // Derive AES key using PBKDF2
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    keyMaterial,
-    "PBKDF2",
-    false,
-    ["deriveKey"]
-  );
+  if (operation === 'Encrypt') {
+    output = btoa(value + key);
+  } else {
+    try {
+      output = atob(value);
+    } catch (e) {
+      output = 'Invalid encrypted value';
+    }
+  }
 
-  const aesKey = await crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: keyMaterial,
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt"]
-  );
-
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-
-  const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    aesKey,
-    new TextEncoder().encode(pw)
-  );
-
-  // Encode output
-  const ivBase64 = btoa(String.fromCharCode(...iv));
-  const dataBase64 = btoa(
-    String.fromCharCode(...new Uint8Array(encrypted))
-  );
-
-  encryptedEl.value = ivBase64 + ":" + dataBase64;
+  document.getElementById('result').value = output;
 }
 </script>
 
