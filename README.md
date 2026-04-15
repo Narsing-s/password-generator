@@ -1,4 +1,4 @@
-#Secure Properties Generator
+Secure Properties Generator
 
 This project provides a simple web-based tool for encrypting and decrypting strings using different cryptographic algorithms. The interface is designed to be clean, responsive, and easy to use, allowing developers or learners to quickly test encryption workflows.
 
